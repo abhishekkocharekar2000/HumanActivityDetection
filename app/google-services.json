@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "339774668638",
+    "project_id": "humanactivitydetection-1e9d7",
+    "storage_bucket": "humanactivitydetection-1e9d7.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:339774668638:android:75d7933acf8415240399cf",
+        "android_client_info": {
+          "package_name": "com.example.humanactivitydetection"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "339774668638-r5rtv6phfa5fiu6heu6f2r9rqvpekgpu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBNK8_kQpuVnZCN17tglAwVCFaValc7Rx0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "339774668638-r5rtv6phfa5fiu6heu6f2r9rqvpekgpu.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

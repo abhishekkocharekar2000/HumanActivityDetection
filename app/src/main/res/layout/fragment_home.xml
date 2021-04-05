@@ -60,4 +60,31 @@
         android:layout_marginRight="16dp"
         android:layout_marginBottom="79dp"
         android:text="Stop Tracking" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+    <Chronometer
+        android:id="@+id/chronometer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:visibility="invisible" />
+    <Chronometer
+        android:id="@+id/chronometer2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:visibility="invisible" />
+    <Chronometer
+        android:id="@+id/chronometer3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:visibility="invisible" />
+    <Chronometer
+        android:id="@+id/chronometer4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:visibility="invisible" />
+    </LinearLayout>
+
 </RelativeLayout>

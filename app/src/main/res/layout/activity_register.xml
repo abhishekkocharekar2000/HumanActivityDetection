@@ -9,24 +9,16 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    android:background="@color/white"
-    tools:context=".MainActivity"
-    android:gravity="bottom">
+    tools:context=".RegisterActivity"
+    android:gravity="top">
 
-    <ImageView
-        android:id="@+id/imageView2"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:srcCompat="@drawable/ic_baseline_directions_run_24"
-        android:paddingBottom="150dp"/>
 
     <com.rengwuxian.materialedittext.MaterialEditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:met_floatingLabel="normal"
-        android:textColorHint="@color/white"
-        android:id="@+id/login_email"
-        android:hint="@string/prompt_email"
+        android:id="@+id/register_username"
+        android:hint="@string/prompt_username"
         android:textColor="@color/white"
         android:inputType="textNoSuggestions" />
 
@@ -34,34 +26,34 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:met_floatingLabel="normal"
-        android:textColorHint="@color/white"
-        android:id="@+id/login_password"
+        android:id="@+id/register_email"
+        android:hint="@string/prompt_email"
+        android:inputType="textNoSuggestions" />
+
+    <com.rengwuxian.materialedittext.MaterialEditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:met_floatingLabel="normal"
+        android:id="@+id/register_password"
         android:hint="@string/prompt_password"
-        android:textColor="@color/white"
+        android:inputType="textPassword" />
+
+    <com.rengwuxian.materialedittext.MaterialEditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:met_floatingLabel="normal"
+        android:id="@+id/register_confirm_password"
+        android:hint="@string/prompt_password_again"
         android:inputType="textPassword" />
 
     <Button
-        android:id="@+id/login_sign_in_button"
+        android:id="@+id/register_sign_up_button"
         style="?android:textAppearanceMedium"
         android:textColor="@color/white"
+        android:onClick="signUp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:onClick="signInExistingUser"
-        android:text="@string/action_sign_in_short"
+        android:text="@string/action_sign_up"
         android:textStyle="bold"/>
-
-    <Button
-        android:id="@+id/login_register_button"
-        style="?android:textAppearanceMedium"
-        android:textColor="@color/white"
-        android:onClick="registerNewUser"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="@string/action_register"
-        android:textStyle="bold"/>
-
-
-
 </LinearLayout>
