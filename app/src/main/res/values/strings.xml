@@ -4,4 +4,9 @@
     <string name="title_home">Track</string>
     <string name="title_dashboard">Goals</string>
     <string name="title_notifications">Progress</string>
+    <string name="activity_on_foot">On Foot</string>
+    <string name="activity_running">Running</string>
+    <string name="activity_walking">walking</string>
+    <string name="activity_unknown">Unknown</string>
+    <string name="activity_still">Still</string>
 </resources>
