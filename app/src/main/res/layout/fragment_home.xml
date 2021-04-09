@@ -8,6 +8,7 @@
     tools:context=".MainActivity">
 
     <LinearLayout
+        android:id="@+id/asdf"
         android:orientation="vertical"
         android:layout_centerHorizontal="true"
         android:layout_width="wrap_content"
@@ -38,30 +39,29 @@
             android:textAllCaps="true"
             android:textSize="14dp" />
 
+
     </LinearLayout>
 
     <Button
         android:id="@+id/btn_start_tracking"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+
+        android:layout_below="@+id/asdf"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginLeft="16dp"
-        android:layout_marginBottom="79dp"
         android:text="Start Tracking" />
 
     <Button
         android:id="@+id/btn_stop_tracking"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_below="@+id/asdf"
         android:layout_alignParentRight="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginEnd="16dp"
-        android:layout_marginRight="16dp"
-        android:layout_marginBottom="79dp"
+        android:layout_gravity="center"
         android:text="Stop Tracking" />
 
     <LinearLayout
+        android:visibility="visible"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
@@ -69,22 +69,26 @@
         android:id="@+id/chronometer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        tools:visibility="invisible" />
+        android:textColor="@color/white"
+         />
     <Chronometer
         android:id="@+id/chronometer2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        tools:visibility="invisible" />
+        android:textColor="@color/white"
+         />
     <Chronometer
         android:id="@+id/chronometer3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        tools:visibility="invisible" />
+        android:textColor="@color/white"
+        />
     <Chronometer
         android:id="@+id/chronometer4"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        tools:visibility="invisible" />
+        android:textColor="@color/white"
+         />
     </LinearLayout>
 
 </RelativeLayout>
