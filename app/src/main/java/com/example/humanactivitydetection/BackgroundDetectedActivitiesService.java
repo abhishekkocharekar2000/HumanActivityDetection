@@ -75,7 +75,7 @@ public class BackgroundDetectedActivitiesService extends Service{
             @Override
             public void onFailure(@NonNull Exception e) {
                 Toast.makeText(getApplicationContext(),
-                        "Stopped Tracking",
+                        e.toString(),
                         Toast.LENGTH_SHORT)
                         .show();
             }

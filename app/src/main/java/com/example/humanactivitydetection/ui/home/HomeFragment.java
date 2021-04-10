@@ -24,6 +24,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import com.example.humanactivitydetection.BackgroundDetectedActivitiesService;
 import com.example.humanactivitydetection.Constants;
 import com.example.humanactivitydetection.R;
+import com.example.humanactivitydetection.getProgress;
 import com.google.android.gms.location.DetectedActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -47,17 +48,13 @@ public class HomeFragment extends Fragment {
     public Chronometer chronometer4;
     public boolean running;
     public boolean running2;
-    public boolean running3;
-    public boolean running4;
     public boolean completeWalk = false;
     public boolean completeRun = false;
     public long pauseOffset;
     public long pauseOffset2;
-    public long pauseOffset3;
-    public long pauseOffset4;
     public int check_walk_int;
     FirebaseUser mFirebaseUser;
-    public DatabaseReference mDatabaseReference,mDatabaseReference2;
+    public DatabaseReference mDatabaseReference;
     private DatabaseReference mDatabaseRef;
     public String date;
 
@@ -69,9 +66,11 @@ public class HomeFragment extends Fragment {
     private ImageView imgActivity;
     private Button btnStartTrcking, btnStopTracking;
     public int w;
-    public int total_walk_int,total_walk_int2;
+    public int total_walk_int;
     public int input1;
     public boolean check = false;
+    public getProgress Progress;
+    public String total_walk;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -94,23 +93,20 @@ public class HomeFragment extends Fragment {
         date = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(new Date());
         mFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         String userid = mFirebaseUser.getUid();
-        ArrayList<String> array2 = new ArrayList<>();
-        mDatabaseReference = FirebaseDatabase.getInstance().getReference("Progress/Today/"+userid).child(date);
+
+        mDatabaseReference = FirebaseDatabase.getInstance().getReference("Progress/"+userid).child(date);
         mDatabaseReference.addValueEventListener(new ValueEventListener() {
 
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                array2.clear();
-                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()){
-                    array2.add(postSnapshot.getValue().toString());
-
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()){
+                    total_walk = snapshot.child("walkTotal").getValue(String.class);
                 }
                 try {
-                    String check_walk = array2.get(0);
-                    check_walk_int = Integer.parseInt(check_walk);
-                } catch (Exception e) {
-                }
+                    total_walk_int = Integer.parseInt(total_walk);
+                } catch(Exception e) {
 
+                }
 
             }
 
@@ -120,9 +116,9 @@ public class HomeFragment extends Fragment {
             }
 
         });
-        if(check_walk_int == 1){
-            completeWalk = true;
-        }
+        //if(check_walk_int == 1){
+         //   completeWalk = true;
+        //}
 
 
 
@@ -181,17 +177,6 @@ public class HomeFragment extends Fragment {
             }
         };
 
-        chronometer.setOnChronometerTickListener(new Chronometer.OnChronometerTickListener() {
-            @Override
-            public void onChronometerTick(Chronometer chronometer) {
-                if((SystemClock.elapsedRealtime() - chronometer.getBase()) >= w){
-                    Toast.makeText(getContext(),"Today's Task Completed",Toast.LENGTH_SHORT).show();
-                    pauseChronometer(getView());
-                    resetChronometer(getView());
-                    completeWalk = true;
-                }
-            }
-        });
         return root;
     }
 
@@ -240,48 +225,6 @@ public class HomeFragment extends Fragment {
 
 
 
-    public void startChronometer3(View v){
-        if(!running3){
-            chronometer3.setBase(SystemClock.elapsedRealtime() - pauseOffset3);
-            chronometer3.start();
-            running3 = true;
-        }
-    }
-    public void pauseChronometer3(View v){
-        if(running3){
-            chronometer3.stop();
-            pauseOffset3 = SystemClock.elapsedRealtime() - chronometer3.getBase();
-            running3 = false;
-        }
-    }
-    public void resetChronometer3(View v){
-        chronometer3.setBase(SystemClock.elapsedRealtime());
-        pauseOffset3 = 0;
-    }
-
-
-
-
-
-    public void startChronometer4(View v){
-        if(!running4){
-            chronometer4.setBase(SystemClock.elapsedRealtime() - pauseOffset4);
-            chronometer4.start();
-            running4 = true;
-        }
-    }
-    public void pauseChronometer4(View v){
-        if(running4){
-            chronometer4.stop();
-            pauseOffset4 = SystemClock.elapsedRealtime() - chronometer4.getBase();
-            running4 = false;
-        }
-    }
-    public void resetChronometer4(View v){
-        chronometer4.setBase(SystemClock.elapsedRealtime());
-        pauseOffset4 = 0;
-    }
-
     private void handleUserActivity(int type, int confidence) {
         String label = getString(R.string.activity_unknown);
         int icon = R.drawable.ic_still;
@@ -292,8 +235,6 @@ public class HomeFragment extends Fragment {
                 icon = R.drawable.ic_running;
                 pauseChronometer(getView());
                 pauseChronometer2(getView());
-                pauseChronometer3(getView());
-                pauseChronometer4(getView());
                 break;
             }
             case DetectedActivity.STILL: {
@@ -302,28 +243,17 @@ public class HomeFragment extends Fragment {
                 if(!completeWalk){
                     startChronometer(getView());
                 }
-                startChronometer2(getView());
-                pauseChronometer3(getView());
-                pauseChronometer4(getView());
                 break;
             }
             case DetectedActivity.WALKING: {
                 label = getString(R.string.activity_walking);
                 icon = R.drawable.ic_walking;
-                if(!completeWalk){
-                    startChronometer(getView());
-                }
-                startChronometer2(getView());
-                pauseChronometer3(getView());
-                pauseChronometer4(getView());
                 break;
             }
             case DetectedActivity.UNKNOWN: {
                 label = getString(R.string.activity_unknown);
                 pauseChronometer(getView());
                 pauseChronometer2(getView());
-                pauseChronometer3(getView());
-                pauseChronometer4(getView());
                 break;
             }
         }
@@ -400,9 +330,9 @@ public class HomeFragment extends Fragment {
     }
 
     private void stopTracking() {
+        long walkTotal =SystemClock.elapsedRealtime() - chronometer.getBase();
         pauseChronometer(getView());
-        pauseChronometer2(getView());
-        long walkTotal =SystemClock.elapsedRealtime() - chronometer2.getBase();
+        resetChronometer(getView());
 
 
         mFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -410,28 +340,23 @@ public class HomeFragment extends Fragment {
         if(completeWalk) {
             mDatabaseRef = FirebaseDatabase.getInstance().getReference("Progress/Today/"+userid).child(date);
             HashMap<String, String> hashMap = new HashMap<>();
-                hashMap.put("walkComplete", "1");
+            hashMap.put("walkComplete", "1");
             mDatabaseRef.setValue(hashMap);
         }
 
-        ArrayList<String> array2 = new ArrayList<>();
-        mDatabaseReference = FirebaseDatabase.getInstance().getReference("Progress/").child(userid).child(date);
+        mDatabaseReference = FirebaseDatabase.getInstance().getReference("Progress/"+userid).child(date);
         mDatabaseReference.addValueEventListener(new ValueEventListener() {
 
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                array2.clear();
-                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()){
-                    array2.add(postSnapshot.getValue().toString());
-
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()){
+                    total_walk = snapshot.child("walkTotal").getValue(String.class);
                 }
                 try {
-                    String total_walk = array2.get(0);
                     total_walk_int = Integer.parseInt(total_walk);
-                } catch (Exception e) {
+                } catch(Exception e) {
+
                 }
-
-
             }
 
             @Override
@@ -440,15 +365,14 @@ public class HomeFragment extends Fragment {
             }
 
         });
+
         txtActivity.setText("");
         txtConfidence.setText("");
         input1 = (int) (walkTotal + total_walk_int);
-        mDatabaseReference = FirebaseDatabase.getInstance().getReference("Progress/").child(userid).child(date);
-        HashMap<String, Integer> hashMap2 = new HashMap<>();
-        hashMap2.put("walkTotal", input1/60000);
+        mDatabaseReference = FirebaseDatabase.getInstance().getReference("Progress/"+userid+"/"+date+"/completed");
+        HashMap<String, String> hashMap2 = new HashMap<>();
+        hashMap2.put("walkTotal", String.valueOf(input1));
         mDatabaseReference.setValue(hashMap2);
-        pauseChronometer2(getView());
-        resetChronometer2(getView());
         Intent intent = new Intent(getContext(), BackgroundDetectedActivitiesService.class);
         getActivity().stopService(intent);
     }

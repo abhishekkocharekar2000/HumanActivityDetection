@@ -24,6 +24,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.example.humanactivitydetection.MainActivity;
 import com.example.humanactivitydetection.R;
+import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -70,10 +71,6 @@ public class NotificationsFragment extends Fragment {
         walked=root.findViewById(R.id.textView4);
         ran=root.findViewById(R.id.textView5);
         logoutButton = root.findViewById(R.id.account_logout);
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestEmail()
-                .build();
-        mGoogleSignInClient = GoogleSignIn.getClient(getActivity(), gso);
 
 
         btnClick.setOnClickListener(new View.OnClickListener() {
@@ -86,8 +83,6 @@ public class NotificationsFragment extends Fragment {
                 month++;
                 int year = datePicker.getYear();
                 String date = day+"-"+month+"-"+year;
-                Date myDate = parseDate(date);
-                String asdf = myDate.toString();
                 try {
                     date2 = new SimpleDateFormat("dd-MM-yyyy").parse(date);
                 } catch (ParseException e) {
@@ -135,7 +130,8 @@ public class NotificationsFragment extends Fragment {
                         .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
-                                signOut();
+                                AuthUI.getInstance().signOut(getContext());
+                                startActivity(new Intent(getContext(), MainActivity.class));
                             }
                         })
                         .setNegativeButton("Cancel",null);
@@ -159,11 +155,4 @@ public class NotificationsFragment extends Fragment {
                 });
     }
 
-    public static Date parseDate(String date) {
-        try {
-            return new SimpleDateFormat("dd-MM-yyyy").parse(date);
-        } catch (ParseException e) {
-            return null;
-        }
-    }
 }

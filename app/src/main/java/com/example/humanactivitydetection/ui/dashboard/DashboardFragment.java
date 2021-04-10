@@ -22,7 +22,10 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 
 public class DashboardFragment extends Fragment {
 
@@ -51,7 +54,8 @@ public class DashboardFragment extends Fragment {
                 hashMap.put("walk", walk.getText().toString());
                 hashMap.put("run", run.getText().toString());
                 mDatabaseRef.setValue(hashMap);
-                Toast.makeText(getContext(),"Goals Saved!",Toast.LENGTH_SHORT).show();
+                String date = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(new Date());
+                Toast.makeText(getContext(),date,Toast.LENGTH_SHORT).show();
             }
         });
         return root;
