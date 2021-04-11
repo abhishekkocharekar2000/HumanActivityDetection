@@ -55,7 +55,8 @@ public class NotificationsFragment extends Fragment {
     TextView ran;
     public Date date2;
     Button logoutButton;
-    private GoogleSignInClient mGoogleSignInClient;
+    public String total_walk;
+    public String date;
 
     FirebaseUser mFirebaseUser;
     public DatabaseReference mDatabaseReference;
@@ -74,41 +75,33 @@ public class NotificationsFragment extends Fragment {
 
 
         btnClick.setOnClickListener(new View.OnClickListener() {
-            @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
             public void onClick(View v) {
-                //Toast.makeText(getContext(),"HERE",Toast.LENGTH_LONG).show();
                 int day = datePicker.getDayOfMonth();
                 int month = datePicker.getMonth();
                 month++;
                 int year = datePicker.getYear();
-                String date = day+"-"+month+"-"+year;
-                try {
-                    date2 = new SimpleDateFormat("dd-MM-yyyy").parse(date);
-                } catch (ParseException e) {
-                    e.printStackTrace();
+                if(month<=9){
+                    date = day+"-0"+month+"-"+year;
+                }
+                else{
+                    date = day+"-"+month+"-"+year;
                 }
 
-                String date3 = date2.toString();
-                Toast.makeText(getContext(),date3,Toast.LENGTH_LONG).show();
                 mFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
                 String userid = mFirebaseUser.getUid();
-                ArrayList<String> array2 = new ArrayList<>();
                 mDatabaseReference = FirebaseDatabase.getInstance().getReference("Progress/"+userid).child(date);
                 mDatabaseReference.addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-                        array2.clear();
-                        for (DataSnapshot postSnapshot : dataSnapshot.getChildren()){
-                            array2.add(postSnapshot.getValue().toString());
+                        for (DataSnapshot snapshot : dataSnapshot.getChildren()){
+                            total_walk = snapshot.child("walkTotal").getValue(String.class);
                         }
                         try {
-                            String total_walk = array2.get(0);
-                            Toast.makeText(getContext(),total_walk,Toast.LENGTH_LONG).show();
+                            walked.setText(total_walk);
                         } catch (Exception e) {
                             Toast.makeText(getContext(),"ERROR",Toast.LENGTH_LONG).show();
                         }
-
 
                     }
 
@@ -144,15 +137,6 @@ public class NotificationsFragment extends Fragment {
         return root;
     }
 
-    private void signOut() {
-        mGoogleSignInClient.signOut()
-                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        Toast.makeText(getActivity(), "Signed out", Toast.LENGTH_SHORT).show();
-                        startActivity(new Intent(getActivity(), MainActivity.class));
-                    }
-                });
-    }
+
 
 }

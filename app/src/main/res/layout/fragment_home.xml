@@ -5,7 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="16dp"
-    tools:context=".MainActivity">
+    tools:context=".MainActivity"
+    android:background="@color/teal_200">
 
     <LinearLayout
         android:id="@+id/asdf"
@@ -16,8 +17,10 @@
 
         <ImageView
             android:id="@+id/img_activity"
-            android:layout_width="wrap_content"
+            android:layout_width="150dp"
+
             android:layout_height="200dp"
+            android:src="@drawable/ic_baseline_directions_run_24"
             app:tint="#606060" />
 
         <TextView
@@ -46,7 +49,6 @@
         android:id="@+id/btn_start_tracking"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-
         android:layout_below="@+id/asdf"
         android:layout_alignParentLeft="true"
         android:text="Start Tracking" />
@@ -57,7 +59,6 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/asdf"
         android:layout_alignParentRight="true"
-        android:layout_gravity="center"
         android:text="Stop Tracking" />
 
     <LinearLayout
@@ -69,26 +70,40 @@
         android:id="@+id/chronometer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="@color/white"
+        android:textColor="@color/teal_200"
          />
     <Chronometer
         android:id="@+id/chronometer2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="@color/white"
-         />
-    <Chronometer
-        android:id="@+id/chronometer3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textColor="@color/white"
-        />
-    <Chronometer
-        android:id="@+id/chronometer4"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textColor="@color/white"
+        android:textColor="@color/teal_200"
          />
     </LinearLayout>
+
+    <TextView
+        android:visibility="invisible"
+        android:id="@+id/congo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/btn_start_tracking"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginTop="96dp"
+        android:gravity="center"
+        android:text="Congratulations !"
+        android:textSize="24sp"
+        android:textStyle="bold" />
+    <TextView
+        android:id="@+id/message"
+        android:visibility="invisible"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/congo"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+
+        android:gravity="center"
+        android:text="Today's Goal Completed !" />
+
 
 </RelativeLayout>

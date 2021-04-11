@@ -62,15 +62,18 @@ public class HomeFragment extends Fragment {
     private String TAG = HomeFragment.class.getSimpleName();
     BroadcastReceiver broadcastReceiver;
 
-    private TextView txtActivity, txtConfidence;
+    private TextView txtActivity, txtConfidence,congo,message;
     private ImageView imgActivity;
     private Button btnStartTrcking, btnStopTracking;
     public int w;
-    public int total_walk_int;
+    public int total_walk_int = 1;
     public int input1;
     public boolean check = false;
     public getProgress Progress;
     public String total_walk;
+    public String userid;
+    public String walk_goal;
+    public int walk_goal_int = 2;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -87,8 +90,8 @@ public class HomeFragment extends Fragment {
         btnStopTracking = root.findViewById(R.id.btn_stop_tracking);
         chronometer = root.findViewById(R.id.chronometer);
         chronometer2 = root.findViewById(R.id.chronometer2);
-        chronometer3 = root.findViewById(R.id.chronometer3);
-        chronometer4 = root.findViewById(R.id.chronometer4);
+        congo = root.findViewById(R.id.congo);
+        message = root.findViewById(R.id.message);
 
         date = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(new Date());
         mFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -116,42 +119,7 @@ public class HomeFragment extends Fragment {
             }
 
         });
-        //if(check_walk_int == 1){
-         //   completeWalk = true;
-        //}
 
-
-
-        mFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-        userid = mFirebaseUser.getUid();
-        ArrayList<String> array = new ArrayList<>();
-        mDatabaseReference = FirebaseDatabase.getInstance().getReference("Goals/"+userid);
-        mDatabaseReference.addValueEventListener(new ValueEventListener() {
-
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                array.clear();
-                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()){
-                    array.add(postSnapshot.getValue().toString());
-
-                }
-                try {
-                    String walk_goal = array.get(1);
-                    w = Integer.parseInt(walk_goal) * 60000;
-                    String run_goal = array.get(0);
-                } catch (Exception e) {
-                }
-
-
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                Toast.makeText(getContext(),databaseError.getMessage(),Toast.LENGTH_SHORT).show();
-            }
-
-        });
         btnStartTrcking.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -176,8 +144,73 @@ public class HomeFragment extends Fragment {
                 }
             }
         };
+        if(goalCompleted()){
+            congo.setVisibility(View.VISIBLE);
+            message.setVisibility(View.VISIBLE);
+        }
+        else{
+            congo.setVisibility(View.INVISIBLE);
+            message.setVisibility(View.INVISIBLE);
+        }
 
         return root;
+    }
+
+    private boolean goalCompleted() {
+
+        mFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+        userid = mFirebaseUser.getUid();
+
+        mDatabaseReference = FirebaseDatabase.getInstance().getReference("Progress/"+userid).child(date);
+        mDatabaseReference.addValueEventListener(new ValueEventListener() {
+
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()){
+                    total_walk = snapshot.child("walkTotal").getValue(String.class);
+                }
+                try {
+                    total_walk_int = Integer.parseInt(total_walk);
+                } catch(Exception e) {
+
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Toast.makeText(getContext(),databaseError.getMessage(),Toast.LENGTH_SHORT).show();
+            }
+
+        });
+
+        mDatabaseRef = FirebaseDatabase.getInstance().getReference("Goals/"+userid);
+        mDatabaseRef.addValueEventListener(new ValueEventListener() {
+
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()){
+                    walk_goal = snapshot.child("walkTotal").getValue(String.class);
+                }
+                try {
+                    walk_goal_int = Integer.parseInt(walk_goal);
+                } catch(Exception e) {
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Toast.makeText(getContext(),databaseError.getMessage(),Toast.LENGTH_SHORT).show();
+            }
+
+        });
+
+        if(total_walk_int>=walk_goal_int){
+            return true;
+        }
+        else{
+            return false;
+        }
+
     }
 
     public void startChronometer(View v){
@@ -288,43 +321,6 @@ public class HomeFragment extends Fragment {
     }
 
     private void startTracking() {
-        date = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(new Date());
-        mFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-        String userid = mFirebaseUser.getUid();
-
-
-        ArrayList<String> array2 = new ArrayList<>();
-        mDatabaseReference = FirebaseDatabase.getInstance().getReference("Progress/Today/"+userid).child(date);
-        mDatabaseReference.addValueEventListener(new ValueEventListener() {
-
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                array2.clear();
-                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()){
-                    array2.add(postSnapshot.getValue().toString());
-
-                }
-                try {
-                    String check_walk = array2.get(0);
-                    check_walk_int = Integer.parseInt(check_walk);
-                } catch (Exception e) {
-                }
-
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                Toast.makeText(getContext(),databaseError.getMessage(),Toast.LENGTH_SHORT).show();
-            }
-
-        });
-        if(check_walk_int != 1){
-            mDatabaseRef = FirebaseDatabase.getInstance().getReference("Progress/Today/"+userid).child(date);
-            HashMap<String, String> hashMap = new HashMap<>();
-            hashMap.put("walkComplete", "0");
-            mDatabaseRef.setValue(hashMap);
-        }
         Intent intent = new Intent(getContext(), BackgroundDetectedActivitiesService.class);
         getActivity().startService(intent);
     }
@@ -334,15 +330,8 @@ public class HomeFragment extends Fragment {
         pauseChronometer(getView());
         resetChronometer(getView());
 
-
         mFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-        String userid = mFirebaseUser.getUid();
-        if(completeWalk) {
-            mDatabaseRef = FirebaseDatabase.getInstance().getReference("Progress/Today/"+userid).child(date);
-            HashMap<String, String> hashMap = new HashMap<>();
-            hashMap.put("walkComplete", "1");
-            mDatabaseRef.setValue(hashMap);
-        }
+        userid = mFirebaseUser.getUid();
 
         mDatabaseReference = FirebaseDatabase.getInstance().getReference("Progress/"+userid).child(date);
         mDatabaseReference.addValueEventListener(new ValueEventListener() {
@@ -373,6 +362,16 @@ public class HomeFragment extends Fragment {
         HashMap<String, String> hashMap2 = new HashMap<>();
         hashMap2.put("walkTotal", String.valueOf(input1));
         mDatabaseReference.setValue(hashMap2);
+
+        if(goalCompleted()){
+            congo.setVisibility(View.VISIBLE);
+            message.setVisibility(View.VISIBLE);
+        }
+        else{
+            congo.setVisibility(View.INVISIBLE);
+            message.setVisibility(View.INVISIBLE);
+        }
+
         Intent intent = new Intent(getContext(), BackgroundDetectedActivitiesService.class);
         getActivity().stopService(intent);
     }
