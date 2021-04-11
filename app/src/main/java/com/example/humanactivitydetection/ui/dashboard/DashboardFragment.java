@@ -44,6 +44,7 @@ public class DashboardFragment extends Fragment {
     public String date;
     public int total_walk_int;
     public String total_walk;
+    public String total_run;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -79,9 +80,17 @@ public class DashboardFragment extends Fragment {
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()){
                     total_walk = snapshot.child("walkTotal").getValue(String.class);
+                    total_run = snapshot.child("runTotal").getValue(String.class);
                 }
                 try{
-                    walked.setText(total_walk);
+                    int seconds = Integer.parseInt(total_walk)/1000;
+                    int mins = seconds/60;
+                    seconds = seconds%60;
+                    walked.setText(mins+" Minutes "+seconds+" Seconds");
+                    seconds = Integer.parseInt(total_run)/1000;
+                    mins = seconds/60;
+                    seconds = seconds%60;
+                    ran.setText(mins+" Minutes "+seconds+" Seconds");
                 }
                 catch(Exception e){
 

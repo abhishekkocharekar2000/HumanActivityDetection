@@ -67,13 +67,18 @@ public class HomeFragment extends Fragment {
     private Button btnStartTrcking, btnStopTracking;
     public int w;
     public int total_walk_int = 1;
+    public int total_run_int = 1;
     public int input1;
+    public int input2;
     public boolean check = false;
     public getProgress Progress;
     public String total_walk;
+    public String total_run;
     public String userid;
     public String walk_goal;
     public int walk_goal_int = 2;
+    public String run_goal;
+    public int run_goal_int = 2;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -104,13 +109,14 @@ public class HomeFragment extends Fragment {
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()){
                     total_walk = snapshot.child("walkTotal").getValue(String.class);
+                    total_run = snapshot.child("runTotal").getValue(String.class);
                 }
                 try {
                     total_walk_int = Integer.parseInt(total_walk);
+                    total_run_int = Integer.parseInt(total_run);
                 } catch(Exception e) {
 
                 }
-
             }
 
             @Override
@@ -168,9 +174,11 @@ public class HomeFragment extends Fragment {
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()){
                     total_walk = snapshot.child("walkTotal").getValue(String.class);
+                    total_run = snapshot.child("runTotal").getValue(String.class);
                 }
                 try {
                     total_walk_int = Integer.parseInt(total_walk);
+                    total_run_int = Integer.parseInt(total_run);
                 } catch(Exception e) {
 
                 }
@@ -189,10 +197,12 @@ public class HomeFragment extends Fragment {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()){
-                    walk_goal = snapshot.child("walkTotal").getValue(String.class);
+                    walk_goal = snapshot.child("walk").getValue(String.class);
+                    run_goal = snapshot.child("run").getValue(String.class);
                 }
                 try {
                     walk_goal_int = Integer.parseInt(walk_goal);
+                    run_goal_int = Integer.parseInt(walk_goal);
                 } catch(Exception e) {
                 }
             }
@@ -205,7 +215,12 @@ public class HomeFragment extends Fragment {
         });
 
         if(total_walk_int>=walk_goal_int){
-            return true;
+            if(total_run_int>=run_goal_int) {
+                return true;
+            }
+            else {
+                return false;
+            }
         }
         else{
             return false;
@@ -273,14 +288,15 @@ public class HomeFragment extends Fragment {
             case DetectedActivity.STILL: {
                 label = "STILL";
                 icon = R.drawable.ic_still;
-                if(!completeWalk){
-                    startChronometer(getView());
-                }
+                startChronometer(getView());
+                pauseChronometer2(getView());
                 break;
             }
             case DetectedActivity.WALKING: {
                 label = getString(R.string.activity_walking);
                 icon = R.drawable.ic_walking;
+                startChronometer2(getView());
+                pauseChronometer(getView());
                 break;
             }
             case DetectedActivity.UNKNOWN: {
@@ -330,6 +346,10 @@ public class HomeFragment extends Fragment {
         pauseChronometer(getView());
         resetChronometer(getView());
 
+        long runTotal =SystemClock.elapsedRealtime() - chronometer2.getBase();
+        pauseChronometer2(getView());
+        resetChronometer2(getView());
+
         mFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         userid = mFirebaseUser.getUid();
 
@@ -340,9 +360,11 @@ public class HomeFragment extends Fragment {
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()){
                     total_walk = snapshot.child("walkTotal").getValue(String.class);
+                    total_run = snapshot.child("runTotal").getValue(String.class);
                 }
                 try {
                     total_walk_int = Integer.parseInt(total_walk);
+                    total_run_int = Integer.parseInt(total_run);
                 } catch(Exception e) {
 
                 }
@@ -358,9 +380,11 @@ public class HomeFragment extends Fragment {
         txtActivity.setText("");
         txtConfidence.setText("");
         input1 = (int) (walkTotal + total_walk_int);
+        input2 = (int) (runTotal + total_run_int);
         mDatabaseReference = FirebaseDatabase.getInstance().getReference("Progress/"+userid+"/"+date+"/completed");
         HashMap<String, String> hashMap2 = new HashMap<>();
         hashMap2.put("walkTotal", String.valueOf(input1));
+        hashMap2.put("runTotal", String.valueOf(input2));
         mDatabaseReference.setValue(hashMap2);
 
         if(goalCompleted()){
