@@ -61,11 +61,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
+            android:layout_marginLeft="8dp"
             android:layout_marginTop="26dp"
             android:text="Walked : "
-            android:textSize="24sp"
-            android:textStyle="bold"
-            android:layout_marginLeft="8dp" />
+            android:textSize="18sp"
+            android:textStyle="bold" />
         <TextView
             android:id="@+id/textView4"
             android:layout_width="wrap_content"
@@ -73,7 +73,7 @@
             android:layout_marginStart="8dp"
             android:layout_marginTop="26dp"
             android:text=""
-            android:textSize="24sp"
+            android:textSize="18sp"
             android:textStyle="bold"
             android:layout_marginLeft="8dp" />
 
@@ -90,11 +90,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
+            android:layout_marginLeft="8dp"
             android:layout_marginTop="24dp"
             android:text="Ran : "
-            android:textSize="24sp"
-            android:textStyle="bold"
-            android:layout_marginLeft="8dp" />
+            android:textSize="18sp"
+            android:textStyle="bold" />
         <TextView
             android:id="@+id/ran"
             android:layout_width="wrap_content"
@@ -102,7 +102,7 @@
             android:layout_marginStart="8dp"
             android:layout_marginTop="24dp"
             android:text=""
-            android:textSize="24sp"
+            android:textSize="18sp"
             android:textStyle="bold"
             android:layout_marginLeft="8dp" />
 

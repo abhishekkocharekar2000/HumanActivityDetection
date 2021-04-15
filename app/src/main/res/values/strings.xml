@@ -23,6 +23,9 @@
     <string name="nav_header_subtitle"></string>
     <string name="nav_header_desc">Navigation header</string>
     <string name="add_item">Add Item</string>
+    <string name="activity_in_vehicle">In Vehicle</string>
+    <string name="activity_on_bicycle">On Bicycle</string>
+    <string name="activity_tilting">Tilting</string>
 
     <string name="menu_home">Home</string>
     <string name="menu_messages">Messages</string>

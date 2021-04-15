@@ -7,6 +7,7 @@ import android.icu.util.Calendar;
 import android.icu.util.GregorianCalendar;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -45,6 +46,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
+import static android.content.ContentValues.TAG;
+
 public class NotificationsFragment extends Fragment {
 
     private NotificationsViewModel notificationsViewModel;
@@ -71,13 +74,17 @@ public class NotificationsFragment extends Fragment {
         datePicker=root.findViewById(R.id.datePicaker);
         btnClick=root.findViewById(R.id.b3);
         walked=root.findViewById(R.id.textView4);
-        ran=root.findViewById(R.id.textView5);
+        ran=root.findViewById(R.id.ran);
         logoutButton = root.findViewById(R.id.account_logout);
 
 
         btnClick.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                walked.setText("No Record Available");
+                total_walk = "";
+                ran.setText("No Record Available");
+                total_run = "";
                 int day = datePicker.getDayOfMonth();
                 int month = datePicker.getMonth();
                 month++;
@@ -91,25 +98,21 @@ public class NotificationsFragment extends Fragment {
 
                 mFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
                 String userid = mFirebaseUser.getUid();
-                mDatabaseReference = FirebaseDatabase.getInstance().getReference("Progress/"+userid).child(date);
+                mDatabaseReference = FirebaseDatabase.getInstance().getReference("Walk_Progress/"+userid).child(date);
                 mDatabaseReference.addValueEventListener(new ValueEventListener() {
+
                     @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                         for (DataSnapshot snapshot : dataSnapshot.getChildren()){
                             total_walk = snapshot.child("walkTotal").getValue(String.class);
-                            total_run = snapshot.child("runTotal").getValue(String.class);
                         }
                         try {
                             int seconds = Integer.parseInt(total_walk)/1000;
                             int mins = seconds/60;
                             seconds = seconds%60;
                             walked.setText(mins+" Minutes "+seconds+" Seconds");
-                            seconds = Integer.parseInt(total_run)/1000;
-                            mins = seconds/60;
-                            seconds = seconds%60;
-                            ran.setText(mins+" Minutes "+seconds+" Seconds");
                         } catch (Exception e) {
-                            Toast.makeText(getContext(),"ERROR",Toast.LENGTH_LONG).show();
+                            Toast.makeText(getContext(),"Invalid date.",Toast.LENGTH_SHORT);
                         }
 
                     }
@@ -120,6 +123,32 @@ public class NotificationsFragment extends Fragment {
                     }
 
                 });
+
+                mDatabaseReference = FirebaseDatabase.getInstance().getReference("Run_Progress/"+userid).child(date);
+                mDatabaseReference.addValueEventListener(new ValueEventListener() {
+
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        for (DataSnapshot snapshot : dataSnapshot.getChildren()){
+                            total_run = snapshot.child("runTotal").getValue(String.class);
+                        }
+                        try {
+                            int seconds = Integer.parseInt(total_run)/1000;
+                            int mins = seconds/60;
+                            seconds = seconds%60;
+                            ran.setText(mins+" Minutes "+seconds+" Seconds");
+                        } catch (Exception e) {
+                        }
+
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        Toast.makeText(getContext(),databaseError.getMessage(),Toast.LENGTH_SHORT).show();
+                    }
+
+                });
+
             }
         });
 
@@ -132,8 +161,18 @@ public class NotificationsFragment extends Fragment {
                         .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
-                                AuthUI.getInstance().signOut(getContext());
-                                startActivity(new Intent(getContext(), MainActivity.class));
+                                AuthUI.getInstance().signOut(getContext()).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        if(task.isSuccessful()){
+                                            Intent i = new Intent(getContext(),MainActivity.class);
+                                            startActivity(i);
+                                        }
+                                        else{
+                                            Log.e(TAG,"onComplete : ",task.getException());
+                                        }
+                                    }
+                                });
                             }
                         })
                         .setNegativeButton("Cancel",null);

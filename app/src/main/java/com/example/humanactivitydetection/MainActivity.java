@@ -54,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = AuthUI.getInstance()
                 .createSignInIntentBuilder()
                 .setAvailableProviders(providers)
-                .setLogo(R.drawable.ic_baseline_directions_run_24)
+                .setLogo(R.drawable.logo_foreground)
                 .setAlwaysShowSignInMethodScreen(true)
                 .setIsSmartLockEnabled(false)
                 .build();

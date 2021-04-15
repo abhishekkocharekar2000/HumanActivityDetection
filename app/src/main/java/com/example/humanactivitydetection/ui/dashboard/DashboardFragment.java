@@ -61,11 +61,18 @@ public class DashboardFragment extends Fragment {
             public void onClick(View view) {
                 mFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
                 String userid = mFirebaseUser.getUid();
-                mDatabaseRef = FirebaseDatabase.getInstance().getReference("Goals/"+userid+"/1");
+
+                mDatabaseRef = FirebaseDatabase.getInstance().getReference("WalkingGoals/"+userid+"/1");
                 HashMap<String, String> hashMap = new HashMap<>();
                 hashMap.put("walk", walk.getText().toString());
-                hashMap.put("run", run.getText().toString());
                 mDatabaseRef.setValue(hashMap);
+
+                mDatabaseRef = FirebaseDatabase.getInstance().getReference("RunningGoals/"+userid+"/1");
+                HashMap<String, String> hashMap2 = new HashMap<>();
+                hashMap2.put("run", run.getText().toString());
+                mDatabaseRef.setValue(hashMap2);
+                Toast.makeText(getContext(),"Goals Saved!",Toast.LENGTH_SHORT).show();
+
             }
         });
 
@@ -73,22 +80,44 @@ public class DashboardFragment extends Fragment {
         String userid = mFirebaseUser.getUid();
         date = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(new Date());
 
-        mDatabaseReference = FirebaseDatabase.getInstance().getReference("Progress/"+userid).child(date);
+        mDatabaseReference = FirebaseDatabase.getInstance().getReference("Walk_Progress/"+userid).child(date);
         mDatabaseReference.addValueEventListener(new ValueEventListener() {
 
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()){
                     total_walk = snapshot.child("walkTotal").getValue(String.class);
-                    total_run = snapshot.child("runTotal").getValue(String.class);
                 }
                 try{
                     int seconds = Integer.parseInt(total_walk)/1000;
                     int mins = seconds/60;
                     seconds = seconds%60;
                     walked.setText(mins+" Minutes "+seconds+" Seconds");
-                    seconds = Integer.parseInt(total_run)/1000;
-                    mins = seconds/60;
+                }
+                catch(Exception e){
+
+                }
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Toast.makeText(getContext(),databaseError.getMessage(),Toast.LENGTH_SHORT).show();
+            }
+
+        });
+
+        mDatabaseReference = FirebaseDatabase.getInstance().getReference("Run_Progress/"+userid).child(date);
+        mDatabaseReference.addValueEventListener(new ValueEventListener() {
+
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()){
+                    total_run = snapshot.child("runTotal").getValue(String.class);
+                }
+                try{
+                    int seconds = Integer.parseInt(total_run)/1000;
+                    int mins = seconds/60;
                     seconds = seconds%60;
                     ran.setText(mins+" Minutes "+seconds+" Seconds");
                 }
@@ -104,6 +133,8 @@ public class DashboardFragment extends Fragment {
             }
 
         });
+
+
 
 
         return root;

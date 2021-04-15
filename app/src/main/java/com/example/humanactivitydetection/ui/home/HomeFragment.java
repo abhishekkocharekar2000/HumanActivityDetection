@@ -44,15 +44,10 @@ public class HomeFragment extends Fragment {
 
     public Chronometer chronometer;
     public Chronometer chronometer2;
-    public Chronometer chronometer3;
-    public Chronometer chronometer4;
     public boolean running;
     public boolean running2;
-    public boolean completeWalk = false;
-    public boolean completeRun = false;
     public long pauseOffset;
     public long pauseOffset2;
-    public int check_walk_int;
     FirebaseUser mFirebaseUser;
     public DatabaseReference mDatabaseReference;
     private DatabaseReference mDatabaseRef;
@@ -65,20 +60,23 @@ public class HomeFragment extends Fragment {
     private TextView txtActivity, txtConfidence,congo,message;
     private ImageView imgActivity;
     private Button btnStartTrcking, btnStopTracking;
-    public int w;
     public int total_walk_int = 1;
     public int total_run_int = 1;
     public int input1;
     public int input2;
-    public boolean check = false;
-    public getProgress Progress;
     public String total_walk;
     public String total_run;
     public String userid;
     public String walk_goal;
-    public int walk_goal_int = 2;
+    public int walk_goal_int = Integer.MAX_VALUE;
     public String run_goal;
-    public int run_goal_int = 2;
+    public int run_goal_int = Integer.MAX_VALUE;
+    public int type2;
+    public long walkTotal = 0;
+    public long runTotal = 0;
+    public boolean wasWalking = false;
+    public boolean wasRunning = false;
+
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -102,17 +100,37 @@ public class HomeFragment extends Fragment {
         mFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         String userid = mFirebaseUser.getUid();
 
-        mDatabaseReference = FirebaseDatabase.getInstance().getReference("Progress/"+userid).child(date);
+        mDatabaseReference = FirebaseDatabase.getInstance().getReference("Walk_Progress/"+userid).child(date);
         mDatabaseReference.addValueEventListener(new ValueEventListener() {
 
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()){
                     total_walk = snapshot.child("walkTotal").getValue(String.class);
-                    total_run = snapshot.child("runTotal").getValue(String.class);
                 }
                 try {
                     total_walk_int = Integer.parseInt(total_walk);
+                } catch(Exception e) {
+
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Toast.makeText(getContext(),databaseError.getMessage(),Toast.LENGTH_SHORT).show();
+            }
+
+        });
+
+        mDatabaseReference = FirebaseDatabase.getInstance().getReference("Run_Progress/"+userid).child(date);
+        mDatabaseReference.addValueEventListener(new ValueEventListener() {
+
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()){
+                    total_run = snapshot.child("runTotal").getValue(String.class);
+                }
+                try {
                     total_run_int = Integer.parseInt(total_run);
                 } catch(Exception e) {
 
@@ -125,6 +143,7 @@ public class HomeFragment extends Fragment {
             }
 
         });
+
 
         btnStartTrcking.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -158,7 +177,14 @@ public class HomeFragment extends Fragment {
             congo.setVisibility(View.INVISIBLE);
             message.setVisibility(View.INVISIBLE);
         }
-
+        if(goalCompleted()){
+            congo.setVisibility(View.VISIBLE);
+            message.setVisibility(View.VISIBLE);
+        }
+        else{
+            congo.setVisibility(View.INVISIBLE);
+            message.setVisibility(View.INVISIBLE);
+        }
         return root;
     }
 
@@ -167,17 +193,37 @@ public class HomeFragment extends Fragment {
         mFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         userid = mFirebaseUser.getUid();
 
-        mDatabaseReference = FirebaseDatabase.getInstance().getReference("Progress/"+userid).child(date);
+        mDatabaseReference = FirebaseDatabase.getInstance().getReference("Walk_Progress/"+userid).child(date);
         mDatabaseReference.addValueEventListener(new ValueEventListener() {
 
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()){
                     total_walk = snapshot.child("walkTotal").getValue(String.class);
-                    total_run = snapshot.child("runTotal").getValue(String.class);
                 }
                 try {
                     total_walk_int = Integer.parseInt(total_walk);
+                } catch(Exception e) {
+
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Toast.makeText(getContext(),databaseError.getMessage(),Toast.LENGTH_SHORT).show();
+            }
+
+        });
+
+        mDatabaseReference = FirebaseDatabase.getInstance().getReference("Run_Progress/"+userid).child(date);
+        mDatabaseReference.addValueEventListener(new ValueEventListener() {
+
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()){
+                    total_run = snapshot.child("runTotal").getValue(String.class);
+                }
+                try {
                     total_run_int = Integer.parseInt(total_run);
                 } catch(Exception e) {
 
@@ -191,18 +237,18 @@ public class HomeFragment extends Fragment {
 
         });
 
-        mDatabaseRef = FirebaseDatabase.getInstance().getReference("Goals/"+userid);
+
+        mDatabaseRef = FirebaseDatabase.getInstance().getReference("WalkingGoals").child(userid);
         mDatabaseRef.addValueEventListener(new ValueEventListener() {
 
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()){
                     walk_goal = snapshot.child("walk").getValue(String.class);
-                    run_goal = snapshot.child("run").getValue(String.class);
                 }
                 try {
                     walk_goal_int = Integer.parseInt(walk_goal);
-                    run_goal_int = Integer.parseInt(walk_goal);
+                    walk_goal_int = walk_goal_int*60000;
                 } catch(Exception e) {
                 }
             }
@@ -214,6 +260,27 @@ public class HomeFragment extends Fragment {
 
         });
 
+        mDatabaseRef = FirebaseDatabase.getInstance().getReference("RunningGoals").child(userid);
+        mDatabaseRef.addValueEventListener(new ValueEventListener() {
+
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()){
+                    run_goal = snapshot.child("run").getValue(String.class);
+                }
+                try {
+                    run_goal_int = Integer.parseInt(run_goal);
+                    run_goal_int = run_goal_int*60000;
+                } catch(Exception e) {
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Toast.makeText(getContext(),databaseError.getMessage(),Toast.LENGTH_SHORT).show();
+            }
+
+        });
         if(total_walk_int>=walk_goal_int){
             if(total_run_int>=run_goal_int) {
                 return true;
@@ -278,31 +345,71 @@ public class HomeFragment extends Fragment {
         int icon = R.drawable.ic_still;
 
         switch (type) {
+            case DetectedActivity.IN_VEHICLE: {
+                label = getString(R.string.activity_in_vehicle);
+                icon = R.drawable.ic_driving;
+                if(confidence>70){
+                    pauseChronometer(getView());
+                    pauseChronometer2(getView());
+                    wasWalking = false;
+                    wasRunning = false;
+                }
+                break;
+            }
+            case DetectedActivity.ON_BICYCLE: {
+                label = getString(R.string.activity_on_bicycle);
+                icon = R.drawable.ic_on_bicycle;
+                if(confidence>70){
+                    pauseChronometer(getView());
+                    pauseChronometer2(getView());
+                    wasWalking = false;
+                    wasRunning = false;
+                }
+                break;
+            }
+            case DetectedActivity.ON_FOOT:
+            case DetectedActivity.WALKING: {
+                label = getString(R.string.activity_walking);
+                icon = R.drawable.ic_walking;
+                if(confidence>70){
+                    startChronometer(getView());
+                    pauseChronometer2(getView());
+                    wasWalking = true;
+                    wasRunning = false;
+                }
+                break;
+            }
             case DetectedActivity.RUNNING: {
                 label = getString(R.string.activity_running);
                 icon = R.drawable.ic_running;
-                pauseChronometer(getView());
-                pauseChronometer2(getView());
+                if(confidence>70){
+                    startChronometer2(getView());
+                    pauseChronometer(getView());
+                    wasWalking = false;
+                    wasRunning = true;
+                }
                 break;
             }
             case DetectedActivity.STILL: {
                 label = "STILL";
                 icon = R.drawable.ic_still;
-                startChronometer(getView());
-                pauseChronometer2(getView());
+                if(confidence>70){
+                    pauseChronometer(getView());
+                    pauseChronometer2(getView());
+                    wasWalking = false;
+                    wasRunning = false;
+                }
                 break;
             }
-            case DetectedActivity.WALKING: {
-                label = getString(R.string.activity_walking);
-                icon = R.drawable.ic_walking;
-                startChronometer2(getView());
-                pauseChronometer(getView());
-                break;
-            }
+            case DetectedActivity.TILTING:
             case DetectedActivity.UNKNOWN: {
                 label = getString(R.string.activity_unknown);
-                pauseChronometer(getView());
-                pauseChronometer2(getView());
+                if(confidence>70){
+                    pauseChronometer(getView());
+                    pauseChronometer2(getView());
+                    wasWalking = false;
+                    wasRunning = false;
+                }
                 break;
             }
         }
@@ -342,28 +449,54 @@ public class HomeFragment extends Fragment {
     }
 
     private void stopTracking() {
-        long walkTotal =SystemClock.elapsedRealtime() - chronometer.getBase();
-        pauseChronometer(getView());
-        resetChronometer(getView());
 
-        long runTotal =SystemClock.elapsedRealtime() - chronometer2.getBase();
-        pauseChronometer2(getView());
-        resetChronometer2(getView());
+        if(wasWalking){
+            walkTotal =SystemClock.elapsedRealtime() - chronometer.getBase();
+            pauseChronometer(getView());
+            resetChronometer(getView());
+        }
+
+        if(wasRunning){
+            runTotal =SystemClock.elapsedRealtime() - chronometer2.getBase();
+            pauseChronometer2(getView());
+            resetChronometer2(getView());
+        }
+
 
         mFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         userid = mFirebaseUser.getUid();
 
-        mDatabaseReference = FirebaseDatabase.getInstance().getReference("Progress/"+userid).child(date);
+        mDatabaseReference = FirebaseDatabase.getInstance().getReference("Walk_Progress/"+userid).child(date);
         mDatabaseReference.addValueEventListener(new ValueEventListener() {
 
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()){
                     total_walk = snapshot.child("walkTotal").getValue(String.class);
-                    total_run = snapshot.child("runTotal").getValue(String.class);
                 }
                 try {
                     total_walk_int = Integer.parseInt(total_walk);
+                } catch(Exception e) {
+
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Toast.makeText(getContext(),databaseError.getMessage(),Toast.LENGTH_SHORT).show();
+            }
+
+        });
+
+        mDatabaseReference = FirebaseDatabase.getInstance().getReference("Run_Progress/"+userid).child(date);
+        mDatabaseReference.addValueEventListener(new ValueEventListener() {
+
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()){
+                    total_run = snapshot.child("runTotal").getValue(String.class);
+                }
+                try {
                     total_run_int = Integer.parseInt(total_run);
                 } catch(Exception e) {
 
@@ -381,12 +514,16 @@ public class HomeFragment extends Fragment {
         txtConfidence.setText("");
         input1 = (int) (walkTotal + total_walk_int);
         input2 = (int) (runTotal + total_run_int);
-        mDatabaseReference = FirebaseDatabase.getInstance().getReference("Progress/"+userid+"/"+date+"/completed");
+
+        mDatabaseReference = FirebaseDatabase.getInstance().getReference("Walk_Progress/"+userid+"/"+date+"/completed");
         HashMap<String, String> hashMap2 = new HashMap<>();
         hashMap2.put("walkTotal", String.valueOf(input1));
-        hashMap2.put("runTotal", String.valueOf(input2));
         mDatabaseReference.setValue(hashMap2);
 
+        mDatabaseReference = FirebaseDatabase.getInstance().getReference("Run_Progress/"+userid+"/"+date+"/completed");
+        HashMap<String, String> hashMap3 = new HashMap<>();
+        hashMap3.put("runTotal", String.valueOf(input2));
+        mDatabaseReference.setValue(hashMap3);
         if(goalCompleted()){
             congo.setVisibility(View.VISIBLE);
             message.setVisibility(View.VISIBLE);
@@ -395,7 +532,6 @@ public class HomeFragment extends Fragment {
             congo.setVisibility(View.INVISIBLE);
             message.setVisibility(View.INVISIBLE);
         }
-
         Intent intent = new Intent(getContext(), BackgroundDetectedActivitiesService.class);
         getActivity().stopService(intent);
     }
